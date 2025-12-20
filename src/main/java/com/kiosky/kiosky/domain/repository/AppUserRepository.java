@@ -14,69 +14,39 @@ import java.util.Optional;
 public interface AppUserRepository extends JpaRepository<AppUser, Long> {
 
     /**
-     * Encuentra un usuario por su número de teléfono
-     * @param tel el número de teléfono
-     * @return Optional con el usuario si existe
-     */
-    Optional<AppUser> findByTel(String tel);
-
-    /**
-     * Encuentra usuarios por nombre
-     * @param firstName el primer nombre
-     * @return Lista de usuarios con ese nombre
-     */
-    List<AppUser> findByFirstName(String firstName);
-
-    /**
-     * Encuentra usuarios por nombre y apellido
-     * @param firstName el primer nombre
-     * @param lastName el apellido
-     * @return Lista de usuarios con ese nombre y apellido
-     */
-    List<AppUser> findByFirstNameAndLastName(String firstName, String lastName);
-
-    /**
-     * Encuentra todos los usuarios de una tienda específica
+     * Encuentra el usuario dueño de una tienda específica a través de la relación inversa
      * @param store la tienda
-     * @return Lista de usuarios de esa tienda
+     * @return Lista de usuarios de esa tienda (debería ser solo uno ya que es OneToOne)
      */
     List<AppUser> findByStore(Store store);
 
     /**
-     * Encuentra todos los usuarios de una tienda por ID de tienda
+     * Encuentra el usuario dueño de una tienda por ID de tienda usando join
      * @param storeId el ID de la tienda
-     * @return Lista de usuarios de esa tienda
+     * @return Optional del usuario dueño de esa tienda
      */
-    List<AppUser> findByStoreId(Long storeId);
-
+    @Query("SELECT u FROM AppUser u WHERE u.store.id = :storeId")
+    Optional<AppUser> findByStoreId(@Param("storeId") Long storeId);
 
     /**
-     * Verifica si existe un usuario con ese teléfono
-     * @param tel el teléfono a verificar
+     * Encuentra un usuario por su email
+     * @param email el email del usuario
+     * @return Optional del usuario encontrado
+     */
+    Optional<AppUser> findByEmail(String email);
+
+    /**
+     * Verifica si existe un usuario con el email especificado
+     * @param email el email a verificar
      * @return true si existe, false si no
      */
-    boolean existsByTel(String tel);
+    boolean existsByEmail(String email);
 
     /**
-     * Cuenta los usuarios de una tienda específica
+     * Verifica si existe un usuario para una tienda específica usando join
      * @param storeId el ID de la tienda
-     * @return número de usuarios en esa tienda
+     * @return true si existe, false si no
      */
-    long countByStoreId(Long storeId);
-
-    /**
-     * Encuentra usuarios cuyo nombre contenga el texto especificado (búsqueda parcial)
-     * @param name parte del nombre a buscar
-     * @return Lista de usuarios que coinciden
-     */
-    @Query("SELECT u FROM AppUser u WHERE u.firstName LIKE %:name% OR u.lastName LIKE %:name%")
-    List<AppUser> findByNameContaining(@Param("name") String name);
-
-    /**
-     * Encuentra usuarios de una tienda específica con paginación
-     * @param storeId el ID de la tienda
-     * @return Lista de usuarios ordenados por firstName
-     */
-    @Query("SELECT u FROM AppUser u WHERE u.store.id = :storeId ORDER BY u.firstName ASC")
-    List<AppUser> findByStoreIdOrderByFirstName(@Param("storeId") Long storeId);
+    @Query("SELECT COUNT(u) > 0 FROM AppUser u WHERE u.store.id = :storeId")
+    boolean existsByStoreId(@Param("storeId") Long storeId);
 }

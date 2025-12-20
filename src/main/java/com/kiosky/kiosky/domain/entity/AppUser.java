@@ -17,16 +17,13 @@ public class AppUser {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "phone_number", nullable = false)
-    private String tel;
+    @Column(nullable = false, unique = true)
+    private String email;
 
-    @Column(name = "first_name", nullable = false)
-    private String firstName;
+    @Column(nullable = false)
+    private String password;
 
-    @Column(name = "last_name")
-    private String lastName;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "store_id")
+    // La tienda se asigna después de crear el usuario
+    @OneToOne(mappedBy = "appUser", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Store store;
 }

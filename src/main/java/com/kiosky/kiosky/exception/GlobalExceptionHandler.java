@@ -1,0 +1,95 @@
+package com.kiosky.kiosky.exception;
+
+import jakarta.persistence.EntityNotFoundException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
+
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleEntityNotFoundException(EntityNotFoundException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                "ENTITY_NOT_FOUND",
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                "BAD_REQUEST",
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ValidationErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach((error) -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
+
+        ValidationErrorResponse errorResponse = new ValidationErrorResponse(
+                "VALIDATION_FAILED",
+                "Los datos proporcionados no son válidos",
+                LocalDateTime.now(),
+                errors
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ErrorResponse> handleRuntimeException(RuntimeException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                "INTERNAL_SERVER_ERROR",
+                "Ha ocurrido un error interno: " + ex.getMessage(),
+                LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+    }
+
+    // Clase interna para respuestas de error
+    public static class ErrorResponse {
+        private String code;
+        private String message;
+        private LocalDateTime timestamp;
+
+        public ErrorResponse(String code, String message, LocalDateTime timestamp) {
+            this.code = code;
+            this.message = message;
+            this.timestamp = timestamp;
+        }
+
+        // Getters
+        public String getCode() { return code; }
+        public String getMessage() { return message; }
+        public LocalDateTime getTimestamp() { return timestamp; }
+    }
+
+    // Clase interna para errores de validación
+    public static class ValidationErrorResponse extends ErrorResponse {
+        private Map<String, String> fieldErrors;
+
+        public ValidationErrorResponse(String code, String message, LocalDateTime timestamp, Map<String, String> fieldErrors) {
+            super(code, message, timestamp);
+            this.fieldErrors = fieldErrors;
+        }
+
+        public Map<String, String> getFieldErrors() { return fieldErrors; }
+    }
+}

@@ -27,9 +27,10 @@ public class Store {
     @Column(name = "theme_settings", columnDefinition = "JSONB")
     private String themeSettings;
 
-    // One-to-many relationships
-    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<AppUser> appUsers;
+    // La tienda DEBE tener un dueño (usuario)
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "app_user_id", nullable = false)
+    private AppUser appUser;
 
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Category> categories;
