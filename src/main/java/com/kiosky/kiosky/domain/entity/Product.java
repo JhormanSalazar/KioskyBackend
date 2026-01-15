@@ -22,11 +22,6 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "store_id", nullable = false)
-    private Long storeId;
-
-    @Column(name = "category_id", nullable = false)
-    private Long categoryId;
 
     @Column(name = "name", nullable = false)
     private String name;
@@ -52,13 +47,10 @@ public class Product {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    // Foreign key relationships
+    // Foreign key relationship - Product pertenece a una categoría,
+    // y la tienda se obtiene a través de category.store
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "store_id", insertable = false, updatable = false)
-    private Store store;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id", insertable = false, updatable = false)
+    @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
     // Lifecycle callbacks
@@ -70,5 +62,13 @@ public class Product {
         if (isVisible == null) {
             isVisible = true;
         }
+    }
+
+    /**
+     * Método de conveniencia para obtener la tienda a la que pertenece este producto
+     * @return La tienda del producto (a través de su categoría)
+     */
+    public Store getStore() {
+        return category != null ? category.getStore() : null;
     }
 }

@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 @Getter
 @Setter
@@ -35,6 +36,20 @@ public class Store {
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Category> categories;
 
-    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Product> products;
+    // Los productos pertenecen a la tienda a través de las categorías
+    // Si necesitas acceder a todos los productos de una tienda,
+    // puedes hacerlo a través de sus categorías
+
+    /**
+     * Método de conveniencia para obtener todos los productos de la tienda
+     * a través de sus categorías
+     * @return Lista de todos los productos de la tienda
+     */
+    public List<Product> getAllProducts() {
+        if (categories == null) return List.of();
+        return categories.stream()
+                .flatMap(category -> category.getProducts() != null ?
+                    category.getProducts().stream() : Stream.empty())
+                .toList();
+    }
 }

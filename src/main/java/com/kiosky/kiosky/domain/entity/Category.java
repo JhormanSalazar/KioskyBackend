@@ -27,12 +27,9 @@ public class Category {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "store_id", nullable = false)
-    private Long storeId;
-
     // Foreign key relationship
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "store_id", insertable = false, updatable = false)
+    @JoinColumn(name = "store_id", nullable = false)
     private Store store;
 
     // One-to-many relationship with products
