@@ -2,7 +2,7 @@
 
 ## Descripción
 
-**Kiosky** es una aplicación innovadora que funciona como un **creador de páginas low-code**, diseñada específicamente para servir como gestor de tiendas multi-inquilino. Esta plataforma permite a los usuarios crear y gestionar tiendas virtuales de manera sencilla e intuitiva, sin necesidad de conocimientos técnicos avanzados.
+**Kiosky** es una aplicación innovadora que funciona como un **creador de páginas low-code**, diseñada específicamente para servir como gestor de tiendas. Esta plataforma permite a los usuarios crear y gestionar tiendas virtuales de manera sencilla e intuitiva, sin necesidad de conocimientos técnicos avanzados.
 
 > ⚠️ **Estado del Proyecto**: Esta aplicación se encuentra actualmente en **desarrollo activo**. Algunas funcionalidades pueden estar incompletas o sujetas a cambios.
 
