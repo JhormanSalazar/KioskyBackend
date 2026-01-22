@@ -8,11 +8,13 @@ import com.kiosky.kiosky.dto.CategoryResponse;
 import com.kiosky.kiosky.dto.CreateCategoryRequest;
 import com.kiosky.kiosky.dto.UpdateCategoryRequest;
 import com.kiosky.kiosky.mappers.CategoryMapper;
+import com.kiosky.kiosky.util.AuthorizationUtils;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 
 @Service
@@ -22,6 +24,7 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
     private final StoreRepository storeRepository;
     private final CategoryMapper categoryMapper;
+    private final AuthorizationUtils authUtils;
 
     /**
      * Obtiene todas las categorías
@@ -70,12 +73,18 @@ public class CategoryService {
      * @return CategoryResponse de la categoría creada
      * @throws EntityNotFoundException si no se encuentra la tienda
      * @throws IllegalArgumentException si el slug ya existe en la tienda
+     * @throws SecurityException si el usuario no tiene permisos para crear categorías en esta tienda
      */
     @Transactional
-    public CategoryResponse create(CreateCategoryRequest createCategoryRequest) {
+    public CategoryResponse create(CreateCategoryRequest createCategoryRequest) throws AccessDeniedException {
         // Validar que la tienda existe
         Store store = storeRepository.findById(createCategoryRequest.getStoreId())
                 .orElseThrow(() -> new EntityNotFoundException("No se encontró una tienda con el ID: " + createCategoryRequest.getStoreId()));
+
+        // Validar permisos
+        if (!authUtils.canModifyStore(store.getId())) {
+            throw new AccessDeniedException("No tienes permiso para modificar la información de esta tienda.");
+        }
 
         // Validar que el slug no existe en la tienda
         if (categoryRepository.existsBySlugAndStoreId(createCategoryRequest.getSlug(), createCategoryRequest.getStoreId())) {
@@ -84,6 +93,7 @@ public class CategoryService {
 
         // Crear la categoría
         Category category = categoryMapper.toEntity(createCategoryRequest);
+
         category.setStore(store);
 
         Category savedCategory = categoryRepository.save(category);
@@ -97,11 +107,17 @@ public class CategoryService {
      * @return CategoryResponse de la categoría actualizada
      * @throws EntityNotFoundException si no se encuentra la categoría
      * @throws IllegalArgumentException si el nuevo slug ya existe en la tienda
+     * @throws SecurityException si el usuario no tiene permisos para modificar esta categoría
      */
     @Transactional
     public CategoryResponse update(Long id, UpdateCategoryRequest updateCategoryRequest) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("No se encontró una categoría con el ID: " + id));
+
+        // Verificar permisos
+        if (!authUtils.canModifyCategory(category)) {
+            throw new SecurityException("No tienes permisos para modificar esta categoría");
+        }
 
         // Validar que el nuevo slug no existe en la tienda (excepto para la categoría actual)
         if (!category.getSlug().equals(updateCategoryRequest.getSlug()) &&
@@ -119,11 +135,17 @@ public class CategoryService {
      * @param id ID de la categoría a eliminar
      * @throws EntityNotFoundException si no se encuentra la categoría
      * @throws IllegalStateException si la categoría tiene productos asociados
+     * @throws SecurityException si el usuario no tiene permisos para eliminar esta categoría
      */
     @Transactional
     public void delete(Long id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("No se encontró una categoría con el ID: " + id));
+
+        // Verificar permisos
+        if (!authUtils.canModifyCategory(category)) {
+            throw new SecurityException("No tienes permisos para eliminar esta categoría");
+        }
 
         // Verificar que no tenga productos asociados
         if (category.getProducts() != null && !category.getProducts().isEmpty()) {

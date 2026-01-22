@@ -6,6 +6,7 @@ import com.kiosky.kiosky.domain.repository.StoreRepository;
 import com.kiosky.kiosky.dto.RegisterStoreRequest;
 import com.kiosky.kiosky.dto.StoreResponse;
 import com.kiosky.kiosky.mappers.StoreMapper;
+import com.kiosky.kiosky.util.AuthorizationUtils;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ import java.util.List;
 public class StoreService {
     private final StoreRepository storeRepository;
     private final StoreMapper storeMapper;
+    private final AuthorizationUtils authUtils;
 
     public List<StoreResponse> getAll() {
         return storeMapper.toResponseDtoList(storeRepository.findAll());
@@ -42,10 +44,6 @@ public class StoreService {
 
     @Transactional
     public StoreResponse createStore(RegisterStoreRequest request, AppUser owner) {
-        // Validar que el dominio sea único
-        if (existsByDomain(request.getDomain())) {
-            throw new IllegalArgumentException("Ya existe una tienda con este dominio: " + request.getDomain());
-        }
 
         // Verificar que el usuario no tenga ya una tienda
         if (owner.getStore() != null) {
@@ -66,10 +64,15 @@ public class StoreService {
     }
 
     @Transactional
-    public void deleteStore(Long id) {
-        if (!storeRepository.existsById(id)) {
-            throw new EntityNotFoundException("No se encontró una tienda con el ID: " + id);
+    public void deleteStore(Long storeId) {
+
+        if(!authUtils.canModifyStore(storeId)){
+            throw new IllegalArgumentException("No tienes acceso a esta tienda.");
         }
-        storeRepository.deleteById(id);
+
+        if (!storeRepository.existsById(storeId)) {
+            throw new EntityNotFoundException("No se encontró una tienda con el ID: " + storeId);
+        }
+        storeRepository.deleteById(storeId);
     }
 }

@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 
 @RestController
@@ -82,7 +83,7 @@ public class CategoryController {
      * @return Categoría creada
      */
     @PostMapping
-    public ResponseEntity<CategoryResponse> createCategory(@Valid @RequestBody CreateCategoryRequest createCategoryRequest) {
+    public ResponseEntity<CategoryResponse> createCategory(@Valid @RequestBody CreateCategoryRequest createCategoryRequest) throws AccessDeniedException {
         CategoryResponse createdCategory = categoryService.create(createCategoryRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdCategory);
     }

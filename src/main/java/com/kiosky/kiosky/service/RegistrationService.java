@@ -5,7 +5,6 @@ import com.kiosky.kiosky.dto.AppUserResponse;
 import com.kiosky.kiosky.dto.RegisterAppUserRequest;
 import com.kiosky.kiosky.dto.RegisterStoreRequest;
 import com.kiosky.kiosky.dto.RegisterStoreWithUserRequest;
-import com.kiosky.kiosky.dto.StoreResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

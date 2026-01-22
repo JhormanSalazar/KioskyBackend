@@ -26,4 +26,8 @@ public class AppUser {
     // La tienda se asigna después de crear el usuario
     @OneToOne(mappedBy = "appUser", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Store store;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role = Role.CUSTOMER; // Rol por defecto
 }

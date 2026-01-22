@@ -8,12 +8,14 @@ import com.kiosky.kiosky.dto.CreateProductRequest;
 import com.kiosky.kiosky.dto.ProductResponse;
 import com.kiosky.kiosky.dto.UpdateProductRequest;
 import com.kiosky.kiosky.mappers.ProductMapper;
+import com.kiosky.kiosky.util.AuthorizationUtils;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 
 @Service
@@ -23,6 +25,7 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
     private final ProductMapper productMapper;
+    private final AuthorizationUtils authUtils;
 
     /**
      * Obtiene todos los productos
@@ -112,10 +115,15 @@ public class ProductService {
      * @throws IllegalArgumentException si el slug ya existe en la tienda
      */
     @Transactional
-    public ProductResponse create(CreateProductRequest createProductRequest) {
+    public ProductResponse create(CreateProductRequest createProductRequest) throws AccessDeniedException {
         // Validar que la categoría existe
         Category category = categoryRepository.findById(createProductRequest.getCategoryId())
                 .orElseThrow(() -> new EntityNotFoundException("No se encontró una categoría con el ID: " + createProductRequest.getCategoryId()));
+
+        // Validar permisos
+        if (!authUtils.canModifyStore(category.getStore().getId())) {
+            throw new AccessDeniedException("No tienes permiso para modificar la información de esta tienda.");
+        }
 
         // Validar que el slug no existe en la tienda
         Long storeId = category.getStore().getId();
@@ -140,9 +148,14 @@ public class ProductService {
      * @throws IllegalArgumentException si el nuevo slug ya existe en la tienda
      */
     @Transactional
-    public ProductResponse update(Long id, UpdateProductRequest updateProductRequest) {
+    public ProductResponse update(Long id, UpdateProductRequest updateProductRequest) throws AccessDeniedException {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("No se encontró un producto con el ID: " + id));
+
+        // Validar permisos
+        if (!authUtils.canModifyProduct(product)) {
+            throw new AccessDeniedException("No tienes permiso para modificar la información de esta tienda.");
+        }
 
         // Validar que la nueva categoría existe
         Category newCategory = categoryRepository.findById(updateProductRequest.getCategoryId())
@@ -166,11 +179,17 @@ public class ProductService {
      * Elimina un producto por ID
      * @param id ID del producto a eliminar
      * @throws EntityNotFoundException si no se encuentra el producto
+     * @throws AccessDeniedException si no tiene permisos para realizar la acción
      */
     @Transactional
-    public void delete(Long id) {
+    public void delete(Long id) throws AccessDeniedException {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("No se encontró un producto con el ID: " + id));
+
+        // Validar permisos
+        if (!authUtils.canModifyProduct(product)) {
+            throw new AccessDeniedException("No tienes permiso para modificar la información de esta tienda.");
+        }
 
         productRepository.delete(product);
     }
@@ -183,9 +202,14 @@ public class ProductService {
      * @throws EntityNotFoundException si no se encuentra el producto
      */
     @Transactional
-    public ProductResponse toggleVisibility(Long id, Boolean isVisible) {
+    public ProductResponse toggleVisibility(Long id, Boolean isVisible) throws AccessDeniedException{
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("No se encontró un producto con el ID: " + id));
+
+        // Validar permisos
+        if (!authUtils.canModifyProduct(product)) {
+            throw new AccessDeniedException("No tienes permiso para modificar la información de esta tienda.");
+        }
 
         product.setIsVisible(isVisible);
         Product updatedProduct = productRepository.save(product);

@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 
 @RestController
@@ -135,7 +136,7 @@ public class ProductController {
      * @return Producto creado
      */
     @PostMapping
-    public ResponseEntity<ProductResponse> createProduct(@Valid @RequestBody CreateProductRequest createProductRequest) {
+    public ResponseEntity<ProductResponse> createProduct(@Valid @RequestBody CreateProductRequest createProductRequest) throws AccessDeniedException {
         ProductResponse createdProduct = productService.create(createProductRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdProduct);
     }
@@ -149,7 +150,7 @@ public class ProductController {
     @PutMapping("/{id}")
     public ResponseEntity<ProductResponse> updateProduct(
             @PathVariable Long id,
-            @Valid @RequestBody UpdateProductRequest updateProductRequest) {
+            @Valid @RequestBody UpdateProductRequest updateProductRequest) throws AccessDeniedException {
         ProductResponse updatedProduct = productService.update(id, updateProductRequest);
         return ResponseEntity.ok(updatedProduct);
     }
@@ -163,7 +164,7 @@ public class ProductController {
     @PatchMapping("/{id}/visibility")
     public ResponseEntity<ProductResponse> toggleProductVisibility(
             @PathVariable Long id,
-            @RequestParam Boolean isVisible) {
+            @RequestParam Boolean isVisible) throws AccessDeniedException {
         ProductResponse updatedProduct = productService.toggleVisibility(id, isVisible);
         return ResponseEntity.ok(updatedProduct);
     }
@@ -174,7 +175,7 @@ public class ProductController {
      * @return Respuesta sin contenido
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteProduct(@PathVariable Long id) throws AccessDeniedException {
         productService.delete(id);
         return ResponseEntity.noContent().build();
     }

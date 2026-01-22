@@ -19,4 +19,5 @@ public class CreateCategoryRequest {
 
     @NotNull(message = "El ID de la tienda es obligatorio")
     private Long storeId;
+
 }
