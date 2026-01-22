@@ -12,6 +12,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class AppUserResponse {
     private Long id;
+    private String fullName;
     private String email;
     private Store store;
 }

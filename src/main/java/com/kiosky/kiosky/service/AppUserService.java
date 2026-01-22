@@ -55,6 +55,7 @@ public class AppUserService {
 
         // Crear el usuario SIN tienda (la tienda se creará después)
         AppUser appUser = new AppUser();
+        appUser.setFullName(request.getFullName());
         appUser.setEmail(request.getEmail());
         appUser.setPassword(hashedPassword);
         // NO asignar store aquí

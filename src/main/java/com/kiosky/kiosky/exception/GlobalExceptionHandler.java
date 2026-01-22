@@ -3,6 +3,8 @@ package com.kiosky.kiosky.exception;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -15,6 +17,34 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    // ══════════════════════════════════════════════════════════════
+    // 🔐 EXCEPCIONES DE AUTENTICACIÓN
+    // ══════════════════════════════════════════════════════════════
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ErrorResponse> handleBadCredentialsException(BadCredentialsException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                "UNAUTHORIZED",
+                "Credenciales inválidas",
+                LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ErrorResponse> handleAuthenticationException(AuthenticationException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                "UNAUTHORIZED",
+                "Error de autenticación: " + ex.getMessage(),
+                LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // 🔍 EXCEPCIONES DE ENTIDADES
+    // ══════════════════════════════════════════════════════════════
+
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleEntityNotFoundException(EntityNotFoundException ex) {
         ErrorResponse errorResponse = new ErrorResponse(
@@ -24,6 +54,10 @@ public class GlobalExceptionHandler {
         );
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
     }
+
+    // ══════════════════════════════════════════════════════════════
+    // ⚠️ EXCEPCIONES DE VALIDACIÓN
+    // ══════════════════════════════════════════════════════════════
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex) {
@@ -55,6 +89,10 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
+    // ══════════════════════════════════════════════════════════════
+    // 📋 VALIDACIONES DE CAMPOS (@Valid)
+    // ══════════════════════════════════════════════════════════════
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ValidationErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
@@ -73,6 +111,10 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
+    // ══════════════════════════════════════════════════════════════
+    // 💥 EXCEPCIONES GENÉRICAS (Fallback)
+    // ══════════════════════════════════════════════════════════════
+
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ErrorResponse> handleRuntimeException(RuntimeException ex) {
         ErrorResponse errorResponse = new ErrorResponse(
@@ -82,6 +124,10 @@ public class GlobalExceptionHandler {
         );
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
+
+    // ══════════════════════════════════════════════════════════════
+    // 📦 CLASES DE RESPUESTA
+    // ══════════════════════════════════════════════════════════════
 
     // Clase interna para respuestas de error
     public static class ErrorResponse {

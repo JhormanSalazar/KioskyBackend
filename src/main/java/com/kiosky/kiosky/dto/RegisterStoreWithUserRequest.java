@@ -23,6 +23,9 @@ public class RegisterStoreWithUserRequest {
 
     private String themeSettings; // JSON opcional para configuraciones de tema
 
+    @NotBlank(message = "El nombre completo es obligatorio")
+    private String fullName;
+
     @NotBlank(message = "El email es obligatorio")
     @Email(message = "Debe ser un email válido")
     private String email;
