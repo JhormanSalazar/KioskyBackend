@@ -94,11 +94,22 @@ public class SecurityConfig {
     // 🛡️ PASO 4: SecurityFilterChain - Configuración de Seguridad
     // ══════════════════════════════════════════════════════════════
 
+    // 📚 Rutas públicas para OpenAPI/Swagger
+    private static final String[] SWAGGER_WHITELIST = {
+            "/swagger-ui/**",
+            "/swagger-ui.html",
+            "/v3/api-docs/**",
+            "/swagger-resources/**",
+            "/webjars/**"
+    };
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable()) // Deshabilitar CSRF para APIs REST
             .authorizeHttpRequests(auth -> auth
+                // 📚 Permitir acceso a Swagger UI y OpenAPI docs
+                .requestMatchers(SWAGGER_WHITELIST).permitAll()
                 // ...existing code...
                 .anyRequest().authenticated()
             )

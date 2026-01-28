@@ -5,6 +5,12 @@ import com.kiosky.kiosky.dto.LoginResponse;
 import com.kiosky.kiosky.dto.RegisterAppUserRequest;
 import com.kiosky.kiosky.dto.RegisterStoreWithUserRequest;
 import com.kiosky.kiosky.service.AuthService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,6 +29,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
+@Tag(name = "Autenticación", description = "Endpoints para registro y login de usuarios")
 public class AuthController {
 
     private final AuthService authService;
@@ -49,6 +56,16 @@ public class AuthController {
      *   "role": "CUSTOMER"
      * }
      */
+    @Operation(
+            summary = "Registrar usuario cliente",
+            description = "Registra un nuevo usuario con rol CUSTOMER. No requiere autenticación."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Usuario registrado exitosamente",
+                    content = @Content(schema = @Schema(implementation = LoginResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Datos de registro inválidos"),
+            @ApiResponse(responseCode = "409", description = "El email ya está registrado")
+    })
     @PostMapping("/register")
     public ResponseEntity<LoginResponse> registerCustomer(@Valid @RequestBody RegisterAppUserRequest request) {
         LoginResponse response = authService.registerCustomer(request);
@@ -79,6 +96,16 @@ public class AuthController {
      *   "role": "OWNER"
      * }
      */
+    @Operation(
+            summary = "Registrar propietario con tienda",
+            description = "Registra un nuevo usuario con rol OWNER y crea su tienda asociada. No requiere autenticación."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Usuario y tienda creados exitosamente",
+                    content = @Content(schema = @Schema(implementation = LoginResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Datos de registro inválidos"),
+            @ApiResponse(responseCode = "409", description = "El email o dominio ya están registrados")
+    })
     @PostMapping("/register-owner")
     public ResponseEntity<LoginResponse> registerOwner(@Valid @RequestBody RegisterStoreWithUserRequest request) {
         LoginResponse response = authService.registerOwnerWithStore(request);
@@ -106,6 +133,16 @@ public class AuthController {
      *   "role": "CUSTOMER"
      * }
      */
+    @Operation(
+            summary = "Iniciar sesión",
+            description = "Autentica un usuario y retorna un token JWT para usar en requests subsecuentes."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Login exitoso",
+                    content = @Content(schema = @Schema(implementation = LoginResponse.class))),
+            @ApiResponse(responseCode = "401", description = "Credenciales inválidas"),
+            @ApiResponse(responseCode = "400", description = "Datos de login inválidos")
+    })
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
         LoginResponse response = authService.login(request);
