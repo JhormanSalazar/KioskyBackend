@@ -38,7 +38,7 @@ public class SecurityConfig {
      * - Output: "$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy"
      */
     @Bean
-    public PasswordEncoder passwordEncoder() {
+    PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
@@ -62,7 +62,7 @@ public class SecurityConfig {
      *   → ✅ Usuario autenticado
      */
     @Bean
-    public AuthenticationProvider authenticationProvider() {
+    AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setUserDetailsService(customUserDetailsService);  // Cómo buscar usuarios
         provider.setPasswordEncoder(passwordEncoder());             // Cómo validar passwords
@@ -86,7 +86,7 @@ public class SecurityConfig {
      * );
      */
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
+    AuthenticationManager authenticationManager(AuthenticationConfiguration config)
             throws Exception {
         return config.getAuthenticationManager();
     }
@@ -96,7 +96,7 @@ public class SecurityConfig {
     // ══════════════════════════════════════════════════════════════
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable()) // Deshabilitar CSRF para APIs REST
             .authorizeHttpRequests(auth -> auth
