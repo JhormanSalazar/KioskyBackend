@@ -38,7 +38,7 @@ public class SecurityConfig {
      * - Output: "$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy"
      */
     @Bean
-    PasswordEncoder passwordEncoder() {
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
@@ -62,10 +62,9 @@ public class SecurityConfig {
      *   → ✅ Usuario autenticado
      */
     @Bean
-    AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+    public AuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(passwordEncoder());
         provider.setUserDetailsService(customUserDetailsService);  // Cómo buscar usuarios
-        provider.setPasswordEncoder(passwordEncoder());             // Cómo validar passwords
         return provider;
     }
 
@@ -86,7 +85,7 @@ public class SecurityConfig {
      * );
      */
     @Bean
-    AuthenticationManager authenticationManager(AuthenticationConfiguration config)
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
             throws Exception {
         return config.getAuthenticationManager();
     }
@@ -96,61 +95,11 @@ public class SecurityConfig {
     // ══════════════════════════════════════════════════════════════
 
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable()) // Deshabilitar CSRF para APIs REST
             .authorizeHttpRequests(auth -> auth
-                // ═══════════════════════════════════════════════════
-                // 🌐 ENDPOINTS PÚBLICOS (sin autenticación)
-                // ═══════════════════════════════════════════════════
-
-                // GET - Lectura pública
-                .requestMatchers(HttpMethod.GET, "/kiosky/stores/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/kiosky/products/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/kiosky/categories/**").permitAll()
-
-                // Auth endpoints - Login y registro
-                .requestMatchers(HttpMethod.POST, "/kiosky/auth/register").permitAll()
-                .requestMatchers(HttpMethod.POST, "/kiosky/auth/login").permitAll()
-
-                // ═══════════════════════════════════════════════════
-                // 👑 ADMIN - Control total del sistema
-                // ═══════════════════════════════════════════════════
-                .requestMatchers("/kiosky/admin/**").hasRole("ADMIN")
-
-                // ═══════════════════════════════════════════════════
-                // 🏪 OWNER - Gestión de tiendas
-                // ═══════════════════════════════════════════════════
-                .requestMatchers(HttpMethod.POST, "/kiosky/stores/**").hasAnyRole("OWNER", "ADMIN")
-                .requestMatchers(HttpMethod.PUT, "/kiosky/stores/**").hasAnyRole("OWNER", "ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/kiosky/stores/**").hasAnyRole("OWNER", "ADMIN")
-
-                // ═══════════════════════════════════════════════════
-                // 📦 EMPLOYEE - Gestión de productos
-                // ═══════════════════════════════════════════════════
-                .requestMatchers(HttpMethod.POST, "/kiosky/products/**").hasAnyRole("EMPLOYEE", "OWNER", "ADMIN")
-                .requestMatchers(HttpMethod.PUT, "/kiosky/products/**").hasAnyRole("EMPLOYEE", "OWNER", "ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/kiosky/products/**").hasAnyRole("EMPLOYEE", "OWNER", "ADMIN")
-
-                // ═══════════════════════════════════════════════════
-                // 🏷️ EMPLOYEE - Gestión de categorías
-                // ═══════════════════════════════════════════════════
-                .requestMatchers(HttpMethod.POST, "/kiosky/categories/**").hasAnyRole("EMPLOYEE", "OWNER", "ADMIN")
-                .requestMatchers(HttpMethod.PUT, "/kiosky/categories/**").hasAnyRole("EMPLOYEE", "OWNER", "ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/kiosky/categories/**").hasAnyRole("EMPLOYEE", "OWNER", "ADMIN")
-
-                // ═══════════════════════════════════════════════════
-                // 🔧 HERRAMIENTAS DE DESARROLLO
-                // ═══════════════════════════════════════════════════
-                .requestMatchers("/actuator/**").permitAll()
-                .requestMatchers("/swagger-ui/**").permitAll()
-                .requestMatchers("/v3/api-docs/**").permitAll()
-                .requestMatchers("/favicon.ico").permitAll()
-                .requestMatchers("/error").permitAll()
-
-                // ═══════════════════════════════════════════════════
-                // 🔒 TODO LO DEMÁS REQUIERE AUTENTICACIÓN
-                // ═══════════════════════════════════════════════════
+                // ...existing code...
                 .anyRequest().authenticated()
             )
             // 🔌 Conectar el AuthenticationProvider que configuramos arriba
