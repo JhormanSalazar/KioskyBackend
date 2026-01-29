@@ -8,21 +8,23 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * 🎉 DTO para la respuesta de login exitoso
+ * DTO para la respuesta de login y registro exitoso.
  *
  * Contiene:
- * - message: Mensaje de éxito
+ * - message: Mensaje descriptivo del resultado
  * - email: Email del usuario autenticado
+ * - fullName: Nombre completo del usuario
  * - role: Rol del usuario (ADMIN, OWNER, EMPLOYEE, CUSTOMER)
+ * - token: JWT token para autenticacion en peticiones posteriores
  *
  * Ejemplo de respuesta:
  * {
  *   "message": "Login exitoso",
+ *   "fullName": "Ana Garcia",
  *   "email": "ana@kiosky.com",
- *   "role": "OWNER"
+ *   "role": "OWNER",
+ *   "token": "eyJhbGciOiJIUzI1NiJ9..."
  * }
- *
- * Nota: Más adelante agregarás el token JWT aquí
  */
 @Getter
 @Setter
@@ -35,7 +37,5 @@ public class LoginResponse {
     private String fullName;
     private String email;
     private Role role;
-
-    // 🔮 En el futuro agregarás:
-    // private String token;  // JWT token
+    private String token;
 }
