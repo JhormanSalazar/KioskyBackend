@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -25,7 +27,8 @@ public class Store {
     @Column(name = "domain", nullable = false, unique = true)
     private String domain;
 
-    @Column(name = "theme_settings", columnDefinition = "JSONB")
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "theme_settings", columnDefinition = "jsonb")
     private String themeSettings;
 
     // La tienda DEBE tener un dueño (usuario)
