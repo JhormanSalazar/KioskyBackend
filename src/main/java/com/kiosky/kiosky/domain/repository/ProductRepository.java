@@ -37,20 +37,18 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findByCategoryAndIsVisibleTrue(Category category);
 
     /**
-     * Encuentra todos los productos de una tienda específica a través de la categoría
+     * Encuentra todos los productos de una tienda específica (relación directa)
      * @param storeId el ID de la tienda
      * @return Lista de productos de esa tienda
      */
-    @Query("SELECT p FROM Product p WHERE p.category.store.id = :storeId")
-    List<Product> findByStoreId(@Param("storeId") Long storeId);
+    List<Product> findByStoreId(Long storeId);
 
     /**
-     * Encuentra todos los productos visibles de una tienda específica
+     * Encuentra todos los productos visibles de una tienda específica (relación directa)
      * @param storeId el ID de la tienda
      * @return Lista de productos visibles de esa tienda
      */
-    @Query("SELECT p FROM Product p WHERE p.category.store.id = :storeId AND p.isVisible = true")
-    List<Product> findByStoreIdAndIsVisibleTrue(@Param("storeId") Long storeId);
+    List<Product> findByStoreIdAndIsVisibleTrue(Long storeId);
 
     /**
      * Encuentra un producto por su slug
@@ -60,41 +58,35 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Optional<Product> findBySlug(String slug);
 
     /**
-     * Encuentra un producto por slug dentro de una tienda específica
+     * Encuentra un producto por slug dentro de una tienda específica (relación directa)
      * @param slug el slug del producto
      * @param storeId el ID de la tienda
      * @return Optional con el producto si existe
      */
-    @Query("SELECT p FROM Product p WHERE p.slug = :slug AND p.category.store.id = :storeId")
-    Optional<Product> findBySlugAndStoreId(@Param("slug") String slug, @Param("storeId") Long storeId);
+    Optional<Product> findBySlugAndStoreId(String slug, Long storeId);
 
     /**
-     * Verifica si existe un producto con el slug dado en una tienda específica
+     * Verifica si existe un producto con el slug dado en una tienda específica (relación directa)
      * @param slug el slug a verificar
      * @param storeId el ID de la tienda
      * @return true si existe, false en caso contrario
      */
-    @Query("SELECT COUNT(p) > 0 FROM Product p WHERE p.slug = :slug AND p.category.store.id = :storeId")
-    boolean existsBySlugAndStoreId(@Param("slug") String slug, @Param("storeId") Long storeId);
+    boolean existsBySlugAndStoreId(String slug, Long storeId);
 
     /**
-     * Encuentra productos por rango de precios en una tienda específica
+     * Encuentra productos por rango de precios en una tienda específica (relación directa)
      * @param storeId el ID de la tienda
      * @param minPrice precio mínimo
      * @param maxPrice precio máximo
      * @return Lista de productos en el rango de precios
      */
-    @Query("SELECT p FROM Product p WHERE p.category.store.id = :storeId AND p.price BETWEEN :minPrice AND :maxPrice AND p.isVisible = true")
-    List<Product> findByStoreIdAndPriceBetween(@Param("storeId") Long storeId,
-                                               @Param("minPrice") BigDecimal minPrice,
-                                               @Param("maxPrice") BigDecimal maxPrice);
+    List<Product> findByStoreIdAndPriceBetweenAndIsVisibleTrue(Long storeId, BigDecimal minPrice, BigDecimal maxPrice);
 
     /**
-     * Busca productos por nombre (búsqueda parcial) en una tienda específica
+     * Busca productos por nombre (búsqueda parcial) en una tienda específica (relación directa)
      * @param storeId el ID de la tienda
      * @param name parte del nombre a buscar
      * @return Lista de productos que coinciden con la búsqueda
      */
-    @Query("SELECT p FROM Product p WHERE p.category.store.id = :storeId AND LOWER(p.name) LIKE LOWER(CONCAT('%', :name, '%')) AND p.isVisible = true")
-    List<Product> findByStoreIdAndNameContainingIgnoreCase(@Param("storeId") Long storeId, @Param("name") String name);
+    List<Product> findByStoreIdAndNameContainingIgnoreCaseAndIsVisibleTrue(Long storeId, String name);
 }

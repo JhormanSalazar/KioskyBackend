@@ -70,6 +70,20 @@ public class StoreController {
         return ResponseEntity.status(HttpStatus.CREATED).body(createdStore);
     }
 
+    @Operation(summary = "Verificar disponibilidad de dominio", description = "Verifica si un dominio de tienda ya existe en el sistema")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Verificación exitosa"),
+            @ApiResponse(responseCode = "400", description = "Dominio inválido")
+    })
+    @GetMapping("/domain/exists")
+    public ResponseEntity<Boolean> checkDomainExists(
+            @Parameter(description = "Dominio de la tienda a verificar") @RequestParam String domain) {
+        // Normalizar el dominio antes de verificar
+        String normalizedDomain = storeService.normalizeDomain(domain);
+        boolean exists = storeService.existsByDomain(normalizedDomain);
+        return ResponseEntity.ok(exists);
+    }
+
     @Operation(summary = "Eliminar tienda", description = "Elimina una tienda del sistema")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Tienda eliminada exitosamente"),

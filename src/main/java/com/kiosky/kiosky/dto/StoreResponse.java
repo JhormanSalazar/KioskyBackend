@@ -17,6 +17,6 @@ public class StoreResponse {
     private Long id;
     private String domain;
     private String themeSettings;
-    private List<Category> categories;
-    private List<Product> products;
+    private List<CategoryResponse> categories;
+    private List<ProductResponse> products;
 }

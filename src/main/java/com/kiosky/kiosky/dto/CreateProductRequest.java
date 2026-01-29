@@ -34,4 +34,7 @@ public class CreateProductRequest {
     private Long categoryId;
 
     private Boolean isVisible = true;
+
+    @NotNull(message = "El ID de la tienda es obligatorio")
+    private Long storeId;
 }

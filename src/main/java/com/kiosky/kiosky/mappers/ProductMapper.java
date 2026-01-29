@@ -15,19 +15,21 @@ public interface ProductMapper {
 
     @Mapping(source = "category.id", target = "categoryId")
     @Mapping(source = "category.name", target = "categoryName")
-    @Mapping(source = "category.store.id", target = "storeId")
-    @Mapping(source = "category.store.domain", target = "storeName")
+    @Mapping(source = "store.id", target = "storeId")
+    @Mapping(source = "store.domain", target = "storeName")
     ProductResponse toResponseDto(Product product);
 
     List<ProductResponse> toResponseDtoList(List<Product> products);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "category", ignore = true)
+    @Mapping(target = "store", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     Product toEntity(CreateProductRequest createProductRequest);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "category", ignore = true)
+    @Mapping(target = "store", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     void updateEntityFromDto(UpdateProductRequest updateProductRequest, @MappingTarget Product product);
 }

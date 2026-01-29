@@ -32,9 +32,10 @@ public class RegistrationService {
             throw new IllegalArgumentException("Ya existe un usuario con este email: " + request.getEmail());
         }
 
-        // 2. Validar que el dominio no esté en uso
-        if (storeService.existsByDomain(request.getDomain())) {
-            throw new IllegalArgumentException("Ya existe una tienda con este dominio: " + request.getDomain());
+        // 2. Validar que el dominio no esté en uso (normalizando primero)
+        String normalizedDomain = storeService.normalizeDomain(request.getDomain());
+        if (storeService.existsByDomain(normalizedDomain)) {
+            throw new IllegalArgumentException("Ya existe una tienda con este dominio: " + normalizedDomain);
         }
 
         try {

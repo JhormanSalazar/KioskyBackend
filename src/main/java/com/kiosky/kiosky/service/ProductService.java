@@ -93,7 +93,7 @@ public class ProductService {
      * @return Lista de ProductResponse
      */
     public List<ProductResponse> searchByNameInStore(Long storeId, String name) {
-        return productMapper.toResponseDtoList(productRepository.findByStoreIdAndNameContainingIgnoreCase(storeId, name));
+        return productMapper.toResponseDtoList(productRepository.findByStoreIdAndNameContainingIgnoreCaseAndIsVisibleTrue(storeId, name));
     }
 
     /**
@@ -104,7 +104,7 @@ public class ProductService {
      * @return Lista de ProductResponse
      */
     public List<ProductResponse> getByPriceRangeInStore(Long storeId, BigDecimal minPrice, BigDecimal maxPrice) {
-        return productMapper.toResponseDtoList(productRepository.findByStoreIdAndPriceBetween(storeId, minPrice, maxPrice));
+        return productMapper.toResponseDtoList(productRepository.findByStoreIdAndPriceBetweenAndIsVisibleTrue(storeId, minPrice, maxPrice));
     }
 
     /**
@@ -116,9 +116,15 @@ public class ProductService {
      */
     @Transactional
     public ProductResponse create(CreateProductRequest createProductRequest) throws AccessDeniedException {
+        // Validar que el ID de categoría no sea nulo
+        Long categoryId = createProductRequest.getCategoryId();
+        if (categoryId == null) {
+            throw new IllegalArgumentException("El ID de la categoría no puede ser nulo");
+        }
+
         // Validar que la categoría existe
-        Category category = categoryRepository.findById(createProductRequest.getCategoryId())
-                .orElseThrow(() -> new EntityNotFoundException("No se encontró una categoría con el ID: " + createProductRequest.getCategoryId()));
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new EntityNotFoundException("No se encontró una categoría con el ID: " + categoryId));
 
         // Validar permisos
         if (!authUtils.canModifyStore(category.getStore().getId())) {
@@ -134,6 +140,10 @@ public class ProductService {
         // Crear el producto
         Product product = productMapper.toEntity(createProductRequest);
         product.setCategory(category);
+        product.setStore(category.getStore()); // Establecer relación directa con tienda
+
+        // Validar consistencia entre categoría y tienda
+        product.validateStoreConsistency();
 
         Product savedProduct = productRepository.save(product);
         return productMapper.toResponseDto(savedProduct);
@@ -170,6 +180,10 @@ public class ProductService {
 
         productMapper.updateEntityFromDto(updateProductRequest, product);
         product.setCategory(newCategory);
+        product.setStore(newCategory.getStore()); // Actualizar relación directa con tienda
+
+        // Validar consistencia entre categoría y tienda
+        product.validateStoreConsistency();
 
         Product updatedProduct = productRepository.save(product);
         return productMapper.toResponseDto(updatedProduct);

@@ -9,6 +9,9 @@ import lombok.Setter;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -35,6 +38,7 @@ public class Product {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "attributes", columnDefinition = "JSONB")
     private String attributes;
 
@@ -53,6 +57,12 @@ public class Product {
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
+    // Foreign key relationship directo - Product pertenece a una tienda
+    // (desnormalización para mejorar performance en consultas)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "store_id", nullable = false)
+    private Store store;
+
     // Lifecycle callbacks
     @PrePersist
     protected void onCreate() {
@@ -66,9 +76,23 @@ public class Product {
 
     /**
      * Método de conveniencia para obtener la tienda a la que pertenece este producto
-     * @return La tienda del producto (a través de su categoría)
+     * @return La tienda del producto (relación directa)
      */
     public Store getStore() {
-        return category != null ? category.getStore() : null;
+        return store;
+    }
+
+    /**
+     * Valida que la tienda del producto sea consistente con la tienda de su categoría
+     * @throws IllegalStateException si hay inconsistencia entre product.store y category.store
+     */
+    public void validateStoreConsistency() {
+        if (category != null && store != null && category.getStore() != null) {
+            if (!store.getId().equals(category.getStore().getId())) {
+                throw new IllegalStateException(
+                    String.format("Inconsistencia detectada: Product.store.id=%d != Category.store.id=%d", 
+                                store.getId(), category.getStore().getId()));
+            }
+        }
     }
 }

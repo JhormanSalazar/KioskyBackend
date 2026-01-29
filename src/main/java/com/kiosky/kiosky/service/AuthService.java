@@ -104,9 +104,10 @@ public class AuthService {
             throw new IllegalArgumentException("Ya existe un usuario con este email: " + request.getEmail());
         }
 
-        // 2. Validar que el dominio no este en uso
-        if (storeService.existsByDomain(request.getDomain())) {
-            throw new IllegalArgumentException("Ya existe una tienda con este dominio: " + request.getDomain());
+        // 2. Validar que el dominio no este en uso (normalizando primero)
+        String normalizedDomain = storeService.normalizeDomain(request.getDomain());
+        if (storeService.existsByDomain(normalizedDomain)) {
+            throw new IllegalArgumentException("Ya existe una tienda con este dominio: " + normalizedDomain);
         }
 
         // 3. Crear el usuario PRIMERO (sin tienda)
@@ -229,6 +230,7 @@ public class AuthService {
      * Verifica si un dominio de tienda ya esta registrado.
      */
     public boolean domainExists(String domain) {
-        return storeService.existsByDomain(domain);
+        String normalizedDomain = storeService.normalizeDomain(domain);
+        return storeService.existsByDomain(normalizedDomain);
     }
 }
