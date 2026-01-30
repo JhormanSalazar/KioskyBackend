@@ -1,6 +1,5 @@
 package com.kiosky.kiosky.dto;
 
-import com.kiosky.kiosky.domain.entity.Store;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

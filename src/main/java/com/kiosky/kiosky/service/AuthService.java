@@ -12,6 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +37,21 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
 
+    // Obtener usuario auntenticado
+  public AppUserResponse getAuthenticatedUser(String email) {
+    AppUser user = appUserService.findByEmail(email)
+            .orElseThrow(() -> new UsernameNotFoundException("Usuario autenticado no encontrado: " + email));
+    
+    Long storeId = (user.getStore() != null) ? user.getStore().getId() : null;
+    
+    return new AppUserResponse(
+            user.getId(),
+            user.getFullName(),
+            user.getEmail(),
+            storeId
+    );
+}
+    
     // ══════════════════════════════════════════════════════════════
     // REGISTRO: Usuario Simple (CUSTOMER)
     // ══════════════════════════════════════════════════════════════
