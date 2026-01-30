@@ -15,6 +15,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
@@ -24,6 +25,7 @@ public class SecurityConfig {
 
     private final CustomUserDetailsService customUserDetailsService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final CorsConfigurationSource corsConfigurationSource;
 
     // ══════════════════════════════════════════════════════════════
     // PASO 1: PasswordEncoder Bean
@@ -109,6 +111,9 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+            // Habilitar CORS con la configuración personalizada
+            .cors(cors -> cors.configurationSource(corsConfigurationSource))
+            
             // Deshabilitar CSRF - No es necesario para APIs REST que usan tokens
             .csrf(csrf -> csrf.disable())
             
