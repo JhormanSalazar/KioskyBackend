@@ -48,7 +48,8 @@ public class AuthService {
             user.getId(),
             user.getFullName(),
             user.getEmail(),
-            storeId
+            storeId,
+            user.getRole()
     );
 }
     

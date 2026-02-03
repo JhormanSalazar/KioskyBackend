@@ -12,6 +12,7 @@ import java.util.List;
 public interface AppUserMapper {
 
     @Mapping(target = "storeId", source = "appUser.store.id")
+    @Mapping(target = "role", source = "appUser.role")
     AppUserResponse toResponseDto(AppUser appUser);
     List<AppUserResponse> toResponseDtoList(List<AppUser> appUsers);
 
