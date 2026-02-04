@@ -4,10 +4,12 @@ import com.kiosky.kiosky.domain.entity.AppUser;
 import com.kiosky.kiosky.domain.repository.AppUserRepository;
 import com.kiosky.kiosky.dto.AppUserResponse;
 import com.kiosky.kiosky.dto.RegisterAppUserRequest;
+import com.kiosky.kiosky.dto.UpdateAppUserRequest;
 import com.kiosky.kiosky.mappers.AppUserMapper;
 import com.kiosky.kiosky.util.PasswordUtils;
 import jakarta.persistence.EntityNotFoundException;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,7 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class AppUserService {
 
     private final AppUserRepository appUserRepository;
@@ -39,6 +41,10 @@ public class AppUserService {
      * @throws EntityNotFoundException si no se encuentra el usuario
      */
     public AppUser getUserEntityById(Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException("El ID del usuario no puede ser nulo.");
+        }
+
         return appUserRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("No se encontró un usuario con el ID: " + id));
     }
@@ -64,6 +70,28 @@ public class AppUserService {
         AppUser savedUser = appUserRepository.save(appUser);
 
         return appUserMapper.toResponseDto(savedUser);
+    }
+
+    @Transactional
+    public AppUserResponse updateUser(Long id, UpdateAppUserRequest request) {
+         // Validar si el email ya existe
+        if (existsByEmail(request.getEmail())) {
+            throw new IllegalArgumentException("Ya existe un usuario con este email: " + request.getEmail());
+        }
+
+        AppUser appUser = getUserEntityById(id);
+        
+        appUser.setFullName(request.getFullName());
+        appUser.setEmail(request.getEmail());
+
+        // Si se proporciona una nueva contraseña, validarla y hashearla
+        if (request.getPassword() != null && !request.getPassword().isEmpty()) {
+            String hashedPassword = passwordUtils.hashPassword(request.getPassword());
+            appUser.setPassword(hashedPassword);
+        }
+
+        AppUser updatedUser = appUserRepository.save(appUser);
+        return appUserMapper.toResponseDto(updatedUser);
     }
 
     public boolean existsByEmail(String email) {
@@ -95,8 +123,8 @@ public class AppUserService {
 
     @Transactional
     public void deleteUser(Long id) {
-        if (!appUserRepository.existsById(id)) {
-            throw new EntityNotFoundException("No se encontró un usuario con el ID: " + id);
+        if (id == null) {
+            throw new IllegalArgumentException("El ID del usuario no puede ser nulo.");
         }
         appUserRepository.deleteById(id);
     }

@@ -1,6 +1,7 @@
 package com.kiosky.kiosky.controller;
 
 import com.kiosky.kiosky.dto.AppUserResponse;
+import com.kiosky.kiosky.dto.UpdateAppUserRequest;
 import com.kiosky.kiosky.service.AppUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -16,6 +17,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PathVariable;
+
 
 @RestController
 @AllArgsConstructor
@@ -58,6 +63,11 @@ public class AppUserController {
         return appUserService.getUserByStoreId(storeId)
                 .map(user -> ResponseEntity.ok(user))
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PutMapping("{id}")
+    public ResponseEntity<AppUserResponse> updateUser(@PathVariable Long id, @RequestBody UpdateAppUserRequest request) {
+        return ResponseEntity.ok(appUserService.updateUser(id, request));
     }
 
     @Operation(summary = "Eliminar usuario", description = "Elimina un usuario del sistema")

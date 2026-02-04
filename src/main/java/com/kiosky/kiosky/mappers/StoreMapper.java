@@ -1,6 +1,7 @@
 package com.kiosky.kiosky.mappers;
 
 import com.kiosky.kiosky.domain.entity.Store;
+import com.kiosky.kiosky.dto.SimpleStoreResponse;
 import com.kiosky.kiosky.dto.StoreResponse;
 import org.mapstruct.Mapper;
 
@@ -11,4 +12,6 @@ public interface StoreMapper {
     StoreResponse toResponseDto(Store store);
 
     List<StoreResponse> toResponseDtoList(List<Store> stores);
+
+    SimpleStoreResponse toSimpleResponseDto(Store store);
 }

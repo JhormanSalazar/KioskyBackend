@@ -4,6 +4,7 @@ import com.kiosky.kiosky.domain.entity.AppUser;
 import com.kiosky.kiosky.dto.RegisterStoreRequest;
 import com.kiosky.kiosky.dto.StoreResponse;
 import com.kiosky.kiosky.dto.UpdateStoreRequest;
+import com.kiosky.kiosky.dto.SimpleStoreResponse;
 import com.kiosky.kiosky.service.AppUserService;
 import com.kiosky.kiosky.service.StoreService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,6 +18,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -51,6 +53,18 @@ public class StoreController {
     public ResponseEntity<StoreResponse> getById(
             @Parameter(description = "ID de la tienda") @PathVariable Long id) {
         return ResponseEntity.ok(storeService.getById(id));
+    }
+
+     @Operation(summary = "Obtener tienda por ID", description = "Busca y retorna una tienda específica por su ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Tienda encontrada",
+                    content = @Content(schema = @Schema(implementation = StoreResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Tienda no encontrada")
+    })
+    @GetMapping("/simple/{id}")
+    public ResponseEntity<SimpleStoreResponse> getSimpleStoreById(
+            @Parameter(description = "ID de la tienda") @PathVariable Long id) {
+        return ResponseEntity.ok(storeService.getSimpleStoreById(id));
     }
 
     @Operation(summary = "Crear tienda para usuario", description = "Crea una nueva tienda asociada a un usuario existente")

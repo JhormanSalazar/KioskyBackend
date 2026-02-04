@@ -6,6 +6,7 @@ import com.kiosky.kiosky.domain.entity.Store;
 import com.kiosky.kiosky.domain.repository.AppUserRepository;
 import com.kiosky.kiosky.domain.repository.StoreRepository;
 import com.kiosky.kiosky.dto.RegisterStoreRequest;
+import com.kiosky.kiosky.dto.SimpleStoreResponse;
 import com.kiosky.kiosky.dto.StoreResponse;
 import com.kiosky.kiosky.dto.UpdateStoreRequest;
 import com.kiosky.kiosky.mappers.StoreMapper;
@@ -41,6 +42,16 @@ public class StoreService {
         Store store = storeRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("No se encontró una tienda con el ID: " + id));
         return storeMapper.toResponseDto(store);
+    }
+
+    public SimpleStoreResponse getSimpleStoreById(Long id) {
+       if(id == null){
+            throw new IllegalArgumentException("El ID de la tienda no puede ser nulo.");
+        }  
+
+        Store store = storeRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("No se encontró una tienda con el ID: " + id));
+        return storeMapper.toSimpleResponseDto(store);
     }
 
     /**
