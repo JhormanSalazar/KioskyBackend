@@ -15,6 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 public class StoreResponse {
     private Long id;
+    private String name;
     private String domain;
     private String themeSettings;
     private List<CategoryResponse> categories;

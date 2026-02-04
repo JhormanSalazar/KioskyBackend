@@ -24,6 +24,9 @@ public class Store {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "name", nullable = false)
+    private String name;
+
     @Column(name = "domain", nullable = false, unique = true)
     private String domain;
 

@@ -7,6 +7,7 @@ import com.kiosky.kiosky.domain.repository.AppUserRepository;
 import com.kiosky.kiosky.domain.repository.StoreRepository;
 import com.kiosky.kiosky.dto.RegisterStoreRequest;
 import com.kiosky.kiosky.dto.StoreResponse;
+import com.kiosky.kiosky.dto.UpdateStoreRequest;
 import com.kiosky.kiosky.mappers.StoreMapper;
 import com.kiosky.kiosky.util.AuthorizationUtils;
 import jakarta.persistence.EntityNotFoundException;
@@ -33,6 +34,10 @@ public class StoreService {
     }
 
     public StoreResponse getById(Long id) {
+        if(id == null){
+            throw new IllegalArgumentException("El ID de la tienda no puede ser nulo.");
+        }  
+
         Store store = storeRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("No se encontró una tienda con el ID: " + id));
         return storeMapper.toResponseDto(store);
@@ -45,6 +50,11 @@ public class StoreService {
      * @throws EntityNotFoundException si no se encuentra la tienda
      */
     public Store getStoreEntityById(Long id) {
+         if(id == null){
+            throw new IllegalArgumentException("El ID de la tienda no puede ser nulo.");
+        }  
+
+
         return storeRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("No se encontró una tienda con el ID: " + id));
     }
@@ -75,6 +85,7 @@ public class StoreService {
 
         try {
             Store store = new Store();
+            store.setName(request.getName());
             store.setDomain(normalizedDomain);
             store.setThemeSettings(request.getThemeSettings());
             store.setAppUser(owner);
@@ -130,7 +141,67 @@ public class StoreService {
     }
 
     @Transactional
+    public StoreResponse updateStore(Long storeId, UpdateStoreRequest request) {
+        log.info("🔄 Iniciando actualización de tienda ID: {}", storeId);
+        
+        if (storeId == null) {
+            throw new IllegalArgumentException("El ID de la tienda no puede ser nulo.");
+        }
+
+        // Verificar permisos
+        if (!authUtils.canModifyStore(storeId)) {
+            throw new IllegalArgumentException("No tienes acceso a esta tienda.");
+        }
+
+        // Obtener la tienda existente
+        Store store = getStoreEntityById(storeId);
+
+        // Actualizar nombre si se proporciona
+        if (StringUtils.hasText(request.getName())) {
+            log.info("📝 Actualizando nombre: '{}' -> '{}'", store.getName(), request.getName());
+            store.setName(request.getName());
+        }
+
+        // Actualizar dominio si se proporciona
+        if (StringUtils.hasText(request.getDomain())) {
+            String normalizedDomain = normalizeDomain(request.getDomain());
+            
+            // Verificar que el nuevo dominio no esté en uso por otra tienda
+            if (!store.getDomain().equals(normalizedDomain) && existsByDomain(normalizedDomain)) {
+                log.error("❌ El dominio '{}' ya está en uso por otra tienda", normalizedDomain);
+                throw new IllegalArgumentException("El dominio '" + normalizedDomain + "' ya está en uso");
+            }
+            
+            log.info("🔄 Actualizando dominio: '{}' -> '{}'", store.getDomain(), normalizedDomain);
+            store.setDomain(normalizedDomain);
+        }
+
+        // Actualizar themeSettings si se proporciona
+        if (request.getThemeSettings() != null) {
+            log.info("🎨 Actualizando configuración de tema");
+            store.setThemeSettings(request.getThemeSettings());
+        }
+
+        try {
+            Store updatedStore = storeRepository.save(store);
+            log.info("✅ Tienda ID: {} actualizada exitosamente", storeId);
+            return storeMapper.toResponseDto(updatedStore);
+        } catch (DataIntegrityViolationException e) {
+            log.error("💥 Error de integridad al actualizar tienda: {}", e.getMessage());
+            if (e.getMessage().contains("duplicate key") && e.getMessage().contains("domain")) {
+                throw new IllegalArgumentException("El dominio ya está en uso");
+            }
+            throw new RuntimeException("Error al actualizar la tienda: " + e.getMessage(), e);
+        }
+    }
+
+    @Transactional
     public void deleteStore(Long storeId) {
+
+         if(storeId == null){
+            throw new IllegalArgumentException("El ID de la tienda no puede ser nulo.");
+        }  
+
 
         if(!authUtils.canModifyStore(storeId)){
             throw new IllegalArgumentException("No tienes acceso a esta tienda.");

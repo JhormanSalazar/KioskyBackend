@@ -3,6 +3,7 @@ package com.kiosky.kiosky.controller;
 import com.kiosky.kiosky.domain.entity.AppUser;
 import com.kiosky.kiosky.dto.RegisterStoreRequest;
 import com.kiosky.kiosky.dto.StoreResponse;
+import com.kiosky.kiosky.dto.UpdateStoreRequest;
 import com.kiosky.kiosky.service.AppUserService;
 import com.kiosky.kiosky.service.StoreService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -82,6 +83,22 @@ public class StoreController {
         String normalizedDomain = storeService.normalizeDomain(domain);
         boolean exists = storeService.existsByDomain(normalizedDomain);
         return ResponseEntity.ok(exists);
+    }
+
+    @Operation(summary = "Actualizar tienda", description = "Actualiza la información de una tienda existente")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Tienda actualizada exitosamente",
+                    content = @Content(schema = @Schema(implementation = StoreResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Datos inválidos"),
+            @ApiResponse(responseCode = "404", description = "Tienda no encontrada"),
+            @ApiResponse(responseCode = "403", description = "No tiene permisos")
+    })
+    @PutMapping("/{id}")
+    public ResponseEntity<StoreResponse> updateStore(
+            @Parameter(description = "ID de la tienda") @PathVariable Long id,
+            @Valid @RequestBody UpdateStoreRequest request) {
+        StoreResponse updatedStore = storeService.updateStore(id, request);
+        return ResponseEntity.ok(updatedStore);
     }
 
     @Operation(summary = "Eliminar tienda", description = "Elimina una tienda del sistema")
