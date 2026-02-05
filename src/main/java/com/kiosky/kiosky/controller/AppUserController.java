@@ -65,6 +65,12 @@ public class AppUserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @Operation(summary = "Actualiza la informacion del usuario", description = "Actualiza la información de un usuario específico por su ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Usuario actualizado exitosamente",
+                    content = @Content(schema = @Schema(implementation = AppUserResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
+    })
     @PutMapping("{id}")
     public ResponseEntity<AppUserResponse> updateUser(@PathVariable Long id, @RequestBody UpdateAppUserRequest request) {
         return ResponseEntity.ok(appUserService.updateUser(id, request));

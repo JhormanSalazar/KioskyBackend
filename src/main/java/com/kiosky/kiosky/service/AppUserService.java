@@ -74,15 +74,10 @@ public class AppUserService {
 
     @Transactional
     public AppUserResponse updateUser(Long id, UpdateAppUserRequest request) {
-         // Validar si el email ya existe
-        if (existsByEmail(request.getEmail())) {
-            throw new IllegalArgumentException("Ya existe un usuario con este email: " + request.getEmail());
-        }
-
         AppUser appUser = getUserEntityById(id);
         
+        // Solo actualizar nombre completo (email y role no se pueden modificar)
         appUser.setFullName(request.getFullName());
-        appUser.setEmail(request.getEmail());
 
         // Si se proporciona una nueva contraseña, validarla y hashearla
         if (request.getPassword() != null && !request.getPassword().isEmpty()) {
