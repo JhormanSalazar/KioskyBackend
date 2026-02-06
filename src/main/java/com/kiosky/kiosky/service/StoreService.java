@@ -26,7 +26,6 @@ import java.util.List;
 @AllArgsConstructor
 public class StoreService {
     private final StoreRepository storeRepository;
-    private final AppUserRepository appUserRepository;
     private final StoreMapper storeMapper;
     private final AuthorizationUtils authUtils;
 
@@ -98,7 +97,6 @@ public class StoreService {
             Store store = new Store();
             store.setName(request.getName());
             store.setDomain(normalizedDomain);
-            store.setThemeSettings(request.getThemeSettings());
             store.setAppUser(owner);
 
             // Actualizar el rol a OWNER si el usuario no lo tiene

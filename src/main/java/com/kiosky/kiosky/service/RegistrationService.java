@@ -52,7 +52,6 @@ public class RegistrationService {
             // 5. Crear la tienda asociada al usuario
             RegisterStoreRequest storeRequest = new RegisterStoreRequest();
             storeRequest.setDomain(request.getDomain());
-            storeRequest.setThemeSettings(request.getThemeSettings());
 
             // La tienda requiere el usuario como dueño
             storeService.createStore(storeRequest, createdUser);

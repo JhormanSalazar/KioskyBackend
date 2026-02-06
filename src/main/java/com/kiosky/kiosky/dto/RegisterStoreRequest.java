@@ -20,6 +20,4 @@ public class RegisterStoreRequest {
     @Pattern(regexp = "^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]$",
              message = "El dominio debe contener solo letras, números y guiones, sin espacios")
     private String domain;
-
-    private String themeSettings; // JSON opcional para configuraciones de tema
 }

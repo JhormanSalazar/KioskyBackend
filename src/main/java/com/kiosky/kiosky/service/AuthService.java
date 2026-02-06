@@ -15,9 +15,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Collections;
-
 /**
  * Servicio de Autenticacion y Registro.
  *
@@ -145,7 +142,6 @@ public class AuthService {
         // 6. Crear la tienda asociada al usuario
         RegisterStoreRequest storeRequest = new RegisterStoreRequest();
         storeRequest.setDomain(request.getDomain());
-        storeRequest.setThemeSettings(request.getThemeSettings());
 
         storeService.createStore(storeRequest, createdUser);
 
