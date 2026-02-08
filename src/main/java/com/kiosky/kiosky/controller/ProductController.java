@@ -24,7 +24,7 @@ import java.nio.file.AccessDeniedException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/products")
+@RequestMapping("/products")
 @AllArgsConstructor
 @Tag(name = "Productos", description = "Gestión del catálogo de productos")
 @SecurityRequirement(name = "Bearer Authentication")

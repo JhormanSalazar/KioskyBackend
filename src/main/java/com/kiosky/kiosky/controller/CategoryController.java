@@ -23,7 +23,7 @@ import java.nio.file.AccessDeniedException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/categories")
+@RequestMapping("/categories")
 @AllArgsConstructor
 @Tag(name = "Categorías", description = "Gestión de categorías de productos")
 @SecurityRequirement(name = "Bearer Authentication")
