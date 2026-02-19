@@ -3,6 +3,7 @@ package com.kiosky.kiosky.controller;
 import com.kiosky.kiosky.dto.CreateProductRequest;
 import com.kiosky.kiosky.dto.ProductResponse;
 import com.kiosky.kiosky.dto.UpdateProductRequest;
+import com.kiosky.kiosky.dto.UpdateProductVisibilityRequest;
 import com.kiosky.kiosky.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -224,7 +225,7 @@ public class ProductController {
     /**
      * Cambia la visibilidad de un producto
      * @param id ID del producto
-     * @param isVisible Nueva visibilidad
+     * @param request Datos de visibilidad
      * @return Producto actualizado
      */
     @Operation(summary = "Cambiar visibilidad del producto", description = "Activa o desactiva la visibilidad de un producto en el catálogo")
@@ -237,8 +238,8 @@ public class ProductController {
     @PatchMapping("/{id}/visibility")
     public ResponseEntity<ProductResponse> toggleProductVisibility(
             @Parameter(description = "ID del producto") @PathVariable Long id,
-            @Parameter(description = "Nueva visibilidad") @RequestParam Boolean isVisible) throws AccessDeniedException {
-        ProductResponse updatedProduct = productService.toggleVisibility(id, isVisible);
+            @Valid @RequestBody UpdateProductVisibilityRequest request) throws AccessDeniedException {
+        ProductResponse updatedProduct = productService.toggleVisibility(id, request.getIsVisible());
         return ResponseEntity.ok(updatedProduct);
     }
 
