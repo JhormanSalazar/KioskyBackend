@@ -4,6 +4,7 @@ import com.kiosky.kiosky.domain.entity.AppUser;
 import com.kiosky.kiosky.dto.RegisterStoreRequest;
 import com.kiosky.kiosky.dto.StoreResponse;
 import com.kiosky.kiosky.dto.UpdateStoreRequest;
+import com.kiosky.kiosky.dto.UpdateThemeSettingsRequest;
 import com.kiosky.kiosky.dto.SimpleStoreResponse;
 import com.kiosky.kiosky.service.AppUserService;
 import com.kiosky.kiosky.service.StoreService;
@@ -112,6 +113,22 @@ public class StoreController {
             @Parameter(description = "ID de la tienda") @PathVariable Long id,
             @Valid @RequestBody UpdateStoreRequest request) {
         StoreResponse updatedStore = storeService.updateStore(id, request);
+        return ResponseEntity.ok(updatedStore);
+    }
+
+    @Operation(summary = "Actualizar configuración de tema", description = "Actualiza únicamente la configuración visual (themeSettings) de una tienda")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Configuración de tema actualizada exitosamente",
+                    content = @Content(schema = @Schema(implementation = StoreResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Datos inválidos"),
+            @ApiResponse(responseCode = "404", description = "Tienda no encontrada"),
+            @ApiResponse(responseCode = "403", description = "No tiene permisos")
+    })
+    @PatchMapping("/{id}/theme")
+    public ResponseEntity<StoreResponse> updateThemeSettings(
+            @Parameter(description = "ID de la tienda") @PathVariable Long id,
+            @Valid @RequestBody UpdateThemeSettingsRequest request) {
+        StoreResponse updatedStore = storeService.updateThemeSettings(id, request.getThemeSettings());
         return ResponseEntity.ok(updatedStore);
     }
 

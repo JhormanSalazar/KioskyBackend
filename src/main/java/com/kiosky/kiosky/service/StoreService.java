@@ -205,6 +205,36 @@ public class StoreService {
     }
 
     @Transactional
+    public StoreResponse updateThemeSettings(Long storeId, String themeSettings) {
+        log.info("🎨 Iniciando actualización de themeSettings para tienda ID: {}", storeId);
+        
+        if (storeId == null) {
+            throw new IllegalArgumentException("El ID de la tienda no puede ser nulo.");
+        }
+
+        // Verificar permisos
+        if (!authUtils.canModifyStore(storeId)) {
+            throw new IllegalArgumentException("No tienes acceso a esta tienda.");
+        }
+
+        // Obtener la tienda existente
+        Store store = getStoreEntityById(storeId);
+
+        // Actualizar solo themeSettings
+        log.info("🔄 Actualizando themeSettings de tienda ID: {}", storeId);
+        store.setThemeSettings(themeSettings);
+
+        try {
+            Store updatedStore = storeRepository.save(store);
+            log.info("✅ ThemeSettings de tienda ID: {} actualizado exitosamente", storeId);
+            return storeMapper.toResponseDto(updatedStore);
+        } catch (Exception e) {
+            log.error("💥 Error al actualizar themeSettings: {}", e.getMessage());
+            throw new RuntimeException("Error al actualizar la configuración de tema: " + e.getMessage(), e);
+        }
+    }
+
+    @Transactional
     public void deleteStore(Long storeId) {
 
          if(storeId == null){
